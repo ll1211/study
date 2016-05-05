@@ -34,28 +34,45 @@ Carousel.prototype = {
         var sliceItems = this.posterItems.slice(1),
             scliceSize = sliceItems.size()/ 2,
             rightSlice = sliceItems.slice(0, scliceSize),
+            leftSlice = sliceItems.slice(scliceSize),
             level = scliceSize;
 
-        var rw = this.setting.posterWidth,
-            rh = this.setting.posterHeight,
+        var lw = rw = this.setting.posterWidth,
+            lh = rh = this.setting.posterHeight,
             gap = (this.setting.width - this.setting.posterWidth)/2/level;
 
         var firstLeft = (this.setting.width - this.setting.posterWidth) / 2;
-        var fixOffsetLeft = this.setting.width - rw - firstLeft + gap;
+        var fixOffsetLeft = firstLeft + rw;
+        var fixOffsetTop = rh;
 
         //…Ë÷√”“±ﬂ÷°µƒŒª÷√
         rightSlice.each(function(i){
             level--;
             rw = rw * self.setting.scale;
             rh = rh * self.setting.scale;
-            fixOffsetLeft = fixOffsetLeft + gap;
             $(this).css({
                 zIndex: level,
                 width: rw,
                 height: rh,
-                opacity: 1 / (++i + 1),
-                left: fixOffsetLeft
-                //top: ,
+                opacity: 1 / (scliceSize+1) * (scliceSize-i),
+                left: fixOffsetLeft + gap*(i+1) - rw,
+                top: (self.setting.height - rh) / 2
+            });
+        });
+
+        level = scliceSize;
+        //…Ë÷√◊Û±ﬂ÷°µƒŒª÷√
+        leftSlice.each(function(i){
+            level--;
+            lw = lw * self.setting.scale;
+            lh = lh * self.setting.scale;
+            $(this).css({
+                zIndex: level,
+                width: lw,
+                height: lh,
+                opacity: 1 / (scliceSize+1) * (scliceSize-i),
+                left: gap*(scliceSize-1-i),
+                top: (self.setting.height - lh) / 2
             });
         });
     },
