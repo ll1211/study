@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        body, html,#allmap{width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+        /*canvas {*/
+            /*left: 0;*/
+            /*position: absolute;*/
+            /*top: 0;*/
+            /*pointer-events: none;*/
+        /*}*/
+    </style>
+    <script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=T3fhnhWDoVYwO4GF37IHBPQZ"></script>
+    <script type="text/javascript" src="canvas.js"></script>
+    <title>地图展示</title>
+</head>
+<body>
+<div id="allmap"></div>
+</body>
+</html>
+<script type="text/javascript">
+    // 百度地图API功能
+    var map = new BMap.Map("allmap");    // 创建Map实例
+    map.centerAndZoom(new BMap.Point(118.787943,32.06449), 11);  // 初始化地图,设置中心点坐标和地图级别
+    map.addControl(new BMap.MapTypeControl());   //添加地图类型控件
+    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+    var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+    map.addControl(top_left_navigation);
+
+    var prov = ["江苏省"];
+    var city = ["镇江市", "南通市", "淮安市", "盐城市", "苏州市", "泰州市", "宿迁市", "南京市", "徐州市", "无锡市", "扬州市", "连云港市", "常州市"];
+
+    var myOverlay = new CanvasLayer({map:map,paneName:"mapPane",areaArr:city});
+    myOverlay.show();
+
+    var marker = new BMap.Marker(new BMap.Point(118.787943,32.06449));  // 创建标注
+    map.addOverlay(marker);               // 将标注添加到地图中
+    marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+</script>
+

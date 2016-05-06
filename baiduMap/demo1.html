@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        body, html,#allmap{width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+        canvas {
+            left: 0;
+            position: absolute;
+            top: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+    <script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=T3fhnhWDoVYwO4GF37IHBPQZ"></script>
+    <title>地图展示</title>
+</head>
+<body>
+<div id="allmap"></div>
+<canvas id="myCanvas"></canvas>
+</body>
+</html>
+<script type="text/javascript">
+    // 百度地图API功能
+    var map = new BMap.Map("allmap");    // 创建Map实例
+    map.centerAndZoom(new BMap.Point(118.787943,32.06449), 10);  // 初始化地图,设置中心点坐标和地图级别
+    map.addControl(new BMap.MapTypeControl());   //添加地图类型控件
+    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+    var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+    map.addControl(top_left_navigation);
+    var marker = new BMap.Marker(new BMap.Point(118.787943,32.06449));  // 创建标注
+    marker.setZIndex(100);
+    map.addOverlay(marker);               // 将标注添加到地图中
+    marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+
+    function getBoundary(){
+        var points = [];
+        var bdary = new BMap.Boundary();
+        bdary.get("南京市", function(rs){       //获取行政区域
+            //map.clearOverlays();        //清除地图覆盖物
+            var count = rs.boundaries.length; //行政区域的点有多少个
+            if (count === 0) {
+                alert('未能获取当前输入行政区域');
+                return ;
+            }
+            var pointArray = [];
+            for (var i = 0; i < count; i++) {
+                var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 2, strokeColor: "#ff0000"}); //建立多边形覆盖物
+//                map.addOverlay(ply);  //添加覆盖物
+                pointArray = pointArray.concat(ply.getPath());
+                points = ply.getPath();
+            }
+//            map.setViewport(pointArray);    //调整视野
+            draw(points);
+        });
+    }
+
+    getBoundary();
+
+    function draw(points) {
+        var canvas = document.getElementById("myCanvas");
+        canvas.height = $("#allmap").height();
+        var context = canvas.getContext('2d');
+        canvas.width = $("#allmap").width();
+
+        for(var i in points) {
+            var pixel = map.pointToPixel(points[i]);
+            if(i == 0) {
+                context.moveTo(pixel.x,pixel.y);   //定义绘画开始的位置
+            } else {
+                context.lineTo(pixel.x,pixel.y);  //画一条直线，结束点坐标是x=150,y=50
+            }
+        }
+        context.closePath();
+        context.strokeStyle = "rgba(0,0,255,0.8)";
+        context.fillStyle = "rgba(230,230,250,0.1)";
+        context.lineWidth = 2;
+        for(var i = 0; i < 10; i++)
+        {
+            context.shadowColor = "RGBA(0, 0, 255," + ((10-i)/10) + ")";
+            context.shadowOffsetX = -i*2;
+            context.shadowOffsetY = i*2;
+            context.shadowBlur = 2;
+            context.stroke();  //描边
+            context.fill();
+        }
+    };
+
+    function clearCanvas() {
+        var canvas = document.getElementById("myCanvas");
+        var context = canvas.getContext('2d');
+        canvas.height = $("#allmap").height();
+        canvas.width = $("#allmap").width();
+        context.clearRect(0,0,canvas.width,canvas.height);
+    }
+
+    map.addEventListener("movestart",function(){clearCanvas();});
+    map.addEventListener("moveend",function(){getBoundary();});
+    map.addEventListener("zoomstart",function(){clearCanvas();});
+    map.addEventListener("zoomend",function(){getBoundary();});
+</script>
+
